@@ -1,0 +1,24 @@
+
+ip rule add lookup main suppress_prefixlength 0 // ip rule del lookup main suppress_prefixlength 0
+ip rule add not iif anApp  table main   // ip rule del not iif anApp  table main
+ip rule add not iif lo  table main   // ip rule del not iif anApp  table main
+ip rule add  from 0.0.0.0/0  table 200  // ip rule del  from 0.0.0.0/0  table 200
+
+ip rule add  iif lo  table 200
+
+sudo ip route add 157.148.69.80 dev anApp metric 5 table 200
+
+ip route add default dev anApp metric 5 table 200
+
+
+ip rule add iif anApp  table main
+
+sudo ip route add 157.148.69.80
+
+ip rule add  from  192.168.0.142 table 199
+
+ip rule add  from  192.168.0.142 table main
+
+
+ip rule add  from  10.0.0.2 table main
+sudo ip route add 157.148.69.80 dev anApp metric 5 table 200
