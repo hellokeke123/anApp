@@ -18,7 +18,6 @@ import (
 	"net"
 	"net/netip"
 	"strconv"
-	"time"
 )
 
 type UdpStack struct {
@@ -85,7 +84,7 @@ func (udpStack *UdpStack) HandleRemotePacket(id stack.TransportEndpointID, pkbf 
 			return errors.New(sdError.String())
 		}
 		return nil
-	}, sourPayloadData[:atn], pkbf.Network().DestinationAddress().String()+":"+strconv.Itoa(int(id.LocalPort)))
+	}, sourPayloadData[:atn], pkbf.Network().DestinationAddress().String()+":"+strconv.Itoa(int(id.LocalPort)), strconv.Itoa(int(id.RemotePort)))
 
 	if remoteErr != nil {
 		log.Println("udp远程错误", remoteErr)
@@ -180,7 +179,7 @@ func parseUdpDataPacket(data []byte) {
 
 	创建远程连接并发送请求
 */
-func (udpStack *UdpStack) readRemoteDate(sendLocal func(destData []byte) error, data []byte, remoteAddressStr string) error {
+func (udpStack *UdpStack) readRemoteDate(sendLocal func(destData []byte) error, data []byte, remoteAddressStr, port string) error {
 	addrPort, _ := netip.ParseAddrPort(remoteAddressStr)
 
 	// 强制修改 dns
@@ -204,51 +203,99 @@ func (udpStack *UdpStack) readRemoteDate(sendLocal func(destData []byte) error, 
 	if true {
 
 		log.Println(model.UDP, "direct", route.Ip.String(), "==>", remoteAddr.String())
-		// 拨号连接
-		c, err := dialer.Dial(model.UDP, remoteAddr.String())
-		if err != nil {
-			return err
-		}
-		conn := c.(*net.UDPConn)
-		defer conn.Close()
-
-		// 发送数据到服务器
-		_, err = conn.Write(data)
-		if err != nil {
-			return err
-		}
-		// 接收服务器的响应
-		for {
-			conn.SetDeadline(time.Now().Add(2 * time.Second))
-			byts := make([]byte, 4096)
-			n, _, err := conn.ReadFromUDP(byts)
-
-			if n > 0 {
-				slerr := sendLocal(byts[:n])
-				if slerr != nil {
-					return slerr
-				}
-				if n < 4096 {
-					log.Println(model.UDP, ":正常退出", err)
-					break
-				}
-
-				if err != nil && err == io.EOF {
-					conn.Close()
-					log.Println(model.UDP, ":正常退出", err)
-					break
-				}
-			} else if err != nil && err != io.EOF {
-				conn.Close()
-				log.Println(model.UDP, ":发送到本地报错", err)
-				return err
-			} else if err != nil && err == io.EOF {
-				conn.Close()
-				log.Println(model.UDP, ":正常退出", err)
-				break
-			}
-		}
-		return nil
+		identify := route.Ip.String() + port + "-" + remoteAddressStr
+		portNumber, _ := strconv.Atoi(port)
+		go attachConnect(identify, data,
+			&connectionState{
+				src: &net.UDPAddr{
+					Port: portNumber,
+				},
+				dst:       remoteAddr,
+				dial:      dialer,
+				sendLocal: sendLocal,
+			})
+		//if err != nil {
+		//	log.Println(model.UDP, "direct", route.Ip.String(), "==>", remoteAddr.String(), "返回错误", err)
+		//}
 	}
 	return nil
 }
+
+///*
+//*
+//
+//	创建远程连接并发送请求
+//
+//func (udpStack *UdpStack) readRemoteDate(sendLocal func(destData []byte) error, data []byte, remoteAddressStr string) error {
+//	addrPort, _ := netip.ParseAddrPort(remoteAddressStr)
+//
+//	// 强制修改 dns
+//	if model.ContextConfigImp.ContextClient.IsEnableEnforceDns(addrPort.Port()) {
+//
+//		buff, err := dns.SendDoh(model.ContextConfigImp.ContextClient.GetEnableEnforceDHO(), bytes.NewBuffer(data))
+//
+//		if buff == nil || err != nil {
+//			log.Println("dns-doh失败:", err)
+//			return err
+//		} else {
+//			log.Println("dns-doh成功")
+//			err := sendLocal(buff.Bytes())
+//			return err
+//		}
+//	}
+//	remoteAddr, _ := net.ResolveUDPAddr(model.UDP, remoteAddressStr)
+//	route := model.FindContainRoute(remoteAddr.IP, model.Routes)
+//	dialer := socket.GetDialer(route)
+//
+//	if true {
+//
+//		log.Println(model.UDP, "direct", route.Ip.String(), "==>", remoteAddr.String())
+//		// 拨号连接
+//		c, err := dialer.Dial(model.UDP, remoteAddr.String())
+//		if err != nil {
+//			return err
+//		}
+//		conn := c.(*net.UDPConn)
+//		defer conn.Close()
+//
+//		// 发送数据到服务器
+//		_, err = conn.Write(data)
+//		if err != nil {
+//			return err
+//		}
+//		// 接收服务器的响应
+//		for {
+//			conn.SetDeadline(time.Now().Add(2 * time.Second))
+//			byts := make([]byte, 4096)
+//			n, _, err := conn.ReadFromUDP(byts)
+//
+//			if n > 0 {
+//				slerr := sendLocal(byts[:n])
+//				if slerr != nil {
+//					return slerr
+//				}
+//				if n < 4096 {
+//					log.Println(model.UDP, ":正常退出", err)
+//					break
+//				}
+//
+//				if err != nil && err == io.EOF {
+//					conn.Close()
+//					log.Println(model.UDP, ":正常退出", err)
+//					break
+//				}
+//			} else if err != nil && err != io.EOF {
+//				conn.Close()
+//				log.Println(model.UDP, ":发送到本地报错", err)
+//				return err
+//			} else if err != nil && err == io.EOF {
+//				conn.Close()
+//				log.Println(model.UDP, ":正常退出", err)
+//				break
+//			}
+//		}
+//		return nil
+//	}
+//	return nil
+//}
+//*/

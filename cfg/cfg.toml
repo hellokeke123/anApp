@@ -6,4 +6,4 @@ context= "client"
 [contextClient]
 Direct = false #定向 表示不走远程服务
 EnableEnforceDns = true # dns 53接口强制更换ip
-EnforceDOH = "https://1.1.1.1/dns-query" # doh
+EnforceDOH = "https://1.12.12.12/dns-query" # doh

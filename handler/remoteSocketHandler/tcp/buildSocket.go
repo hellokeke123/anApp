@@ -99,8 +99,8 @@ func (th *TcpHandler) TcpHandle(tcp *gonet.TCPConn, localAddress *net.TCPAddr, r
 		}
 		conn := c.(*net.TCPConn)
 		conn.SetKeepAlive(true)
-		conn.SetKeepAlivePeriod(time.Duration(10) * time.Second)
-		conn.SetReadDeadline(time.Now().Add(10 * time.Second))
+		// conn.SetKeepAlivePeriod(time.Duration(10) * time.Second)
+		// conn.SetReadDeadline(time.Now().Add(10 * time.Second))
 		defer conn.Close()
 		// 将两个连接之间的数据复制
 
