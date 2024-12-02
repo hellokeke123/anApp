@@ -204,12 +204,9 @@ func (udpStack *UdpStack) readRemoteDate(sendLocal func(destData []byte) error, 
 
 		log.Println(model.UDP, "direct", route.Ip.String(), "==>", remoteAddr.String())
 		identify := route.Ip.String() + port + "-" + remoteAddressStr
-		portNumber, _ := strconv.Atoi(port)
+		//portNumber, _ := strconv.Atoi(port)
 		go attachConnect(identify, data,
 			&connectionState{
-				src: &net.UDPAddr{
-					Port: portNumber,
-				},
 				dst:       remoteAddr,
 				dial:      dialer,
 				sendLocal: sendLocal,
