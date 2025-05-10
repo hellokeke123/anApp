@@ -1,9 +1,12 @@
-title = "anApp"
+title = "ipForwardSimple"
 
 [app]
 context= "client"
 
 [contextClient]
+TunIp="10.0.1.1"
+SourceIp="10.8.0.2"
+TargetIp="192.168.3.21"
 Direct = false #定向 表示不走远程服务
-EnableEnforceDns = true # dns 53接口强制更换ip
+EnableEnforceDns = false # dns 53接口强制更换ip
 EnforceDOH = "https://1.12.12.12/dns-query" # doh

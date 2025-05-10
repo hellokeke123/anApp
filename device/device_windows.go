@@ -83,20 +83,20 @@ func (device *Device) InitGateway() {
 	//link.SetRoutes([]*winipcfg.RouteData{
 	//	{prefix, gateway, 1},
 	//})
-	err = device.addRouteEntry4([]string{"0.0.0.0/0"})
+	err = device.addRouteEntry4([]string{model.ContextConfigImp.ContextClient.SourceIp + "/32"})
 	if err != nil {
 		panic(err)
 	}
 
-	if model.ContextConfigImp.ContextClient.EnableEnforceDns {
-		device.SetDns4(model.DNS1, model.DNS2)
-	}
-	// 限制流量
-	// 后面需要考虑释放问题
-	if model.ContextConfigImp.ContextClient.EnableEnforceDns {
-		device.configFwp()
-	}
-	go device.monitorEnforceDns()
+	//if model.ContextConfigImp.ContextClient.EnableEnforceDns {
+	//	device.SetDns4(model.DNS1, model.DNS2)
+	//}
+	//// 限制流量
+	//// 后面需要考虑释放问题
+	//if model.ContextConfigImp.ContextClient.EnableEnforceDns {
+	//	device.configFwp()
+	//}
+	//go device.monitorEnforceDns()
 }
 
 func (d *Device) monitorEnforceDns() {

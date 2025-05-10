@@ -12,6 +12,7 @@ import (
 	"io"
 	"log"
 	"net"
+	"strconv"
 	"time"
 )
 
@@ -65,21 +66,12 @@ func (th *TcpHandler) TcpHandle(tcp *gonet.TCPConn, localAddress *net.TCPAddr, r
 			log.Println("TcpHandle from panic: %v", r)
 		}
 	}()
-	//log.Println("tcp", localAddress.IP, remoteAddress.IP)
-	//n := 2048
-	//buf := make([]byte, n)
-	//tcp.Read(buf)
-	//log.Println("获得数据", string(buf))
 
-	remoteAddr, err := net.ResolveTCPAddr("tcp", localAddress.AddrPort().String())
-	//log.Println(model.TCP, "远程ip:", localAddress.IP.String())
+	remoteAddr, err := net.ResolveTCPAddr("tcp", model.ContextConfigImp.ContextClient.TargetIp+":"+strconv.Itoa(localAddress.Port))
 
 	route := model.FindContainRoute(remoteAddr.IP, model.Routes)
 	// 创建连接
 	dialer := socket.GetDialer(route)
-	//localAddr, err := net.ResolveTCPAddr("tcp", route.Ip.String()+":0")
-	/*	localAddr, err := net.ResolveTCPAddr("tcp", route.Ip.String()+":0")
-		log.Println(model.TCP, "", localAddr.String(), "==>", remoteAddr.String())*/
 
 	if err != nil {
 		log.Println("远程失败:", err)

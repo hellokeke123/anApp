@@ -31,6 +31,9 @@ type ContextClient struct {
 	EnforceDOH                string
 	ReadEnableEnforceDnsChan  chan bool
 	WriteEnableEnforceDnsChan chan bool
+	SourceIp                  string
+	TargetIp                  string
+	TunIp                     string
 }
 
 func (client ContextClient) IsEnableEnforceDns(port uint16) bool {

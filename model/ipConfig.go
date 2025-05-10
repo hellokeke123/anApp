@@ -21,9 +21,9 @@ var (
 
 func init() {
 	TunName = "anApp"
-	TunIp = "10.0.0.2/24"
-	DNS1 = "10.0.0.3"
-	DNS2 = "10.0.0.4"
+	TunIp = "10.0.1.2/24"
+	DNS1 = "10.0.1.3"
+	DNS2 = "10.0.1.4"
 	OutBoundIpv4 = net.IP{1, 1, 1, 1}
 	MTU = 1500 //
 	ReaRouteUpdateChan = make(chan bool)
@@ -45,4 +45,8 @@ func GetReleaseUdpPort() (int, error) {
 
 func SetContextConfig(c ContextConfig) {
 	ContextConfigImp = c
+
+	TunName = c.Title
+	TunIp = c.ContextClient.TunIp + "/24"
+
 }
