@@ -67,6 +67,12 @@ func (th *TcpHandler) TcpHandle(tcp *gonet.TCPConn, localAddress *net.TCPAddr, r
 		}
 	}()
 
+	// 忽略无关请求
+	if localAddress.IP.String() != model.ContextConfigImp.ContextClient.SourceIp {
+		log.Println("udp无关请求被抛弃，" + localAddress.IP.String())
+		return
+	}
+
 	remoteAddr, err := net.ResolveTCPAddr("tcp", model.ContextConfigImp.ContextClient.TargetIp+":"+strconv.Itoa(localAddress.Port))
 
 	route := model.FindContainRoute(remoteAddr.IP, model.Routes)

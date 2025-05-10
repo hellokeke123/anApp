@@ -74,15 +74,7 @@ func (device *Device) InitGateway() {
 		panic(err)
 	}
 	err = link.SetIPAddresses([]netip.Prefix{ip})
-	//gateway, gerr := netip.ParseAddr("0.0.0.0")
-	//if gerr != nil {
-	//	fmt.Println("gerr", gerr)
-	//}
-	////prefix, _ := netip.ParsePrefix("10.0.0.0/24")
-	//prefix, _ := netip.ParsePrefix("0.0.0.0/0")
-	//link.SetRoutes([]*winipcfg.RouteData{
-	//	{prefix, gateway, 1},
-	//})
+
 	err = device.addRouteEntry4([]string{model.ContextConfigImp.ContextClient.SourceIp + "/32"})
 	if err != nil {
 		panic(err)

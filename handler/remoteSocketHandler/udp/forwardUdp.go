@@ -76,6 +76,12 @@ func (udpStack *UdpStack) HandleRemotePacket(id stack.TransportEndpointID, pkbf 
 	}
 
 	log.Println("UDP"+"远程地址 ", pkbf.Network().DestinationAddress(), " 源地址：", pkbf.Network().SourceAddress())
+
+	if pkbf.Network().DestinationAddress().String() != model.ContextConfigImp.ContextClient.SourceIp {
+		log.Println("udp无关请求被抛弃，" + pkbf.Network().DestinationAddress().String())
+		return
+	}
+
 	// 返回远程数据
 	remoteErr := udpStack.readRemoteDate(func(destData []byte) error {
 		sdError := udpStack.send(route, id, buffer.MakeWithData(destData))
