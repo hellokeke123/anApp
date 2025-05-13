@@ -3,7 +3,6 @@ package tcp
 import (
 	"fmt"
 	"github.com/hellokeke123/anApp/model"
-	"github.com/hellokeke123/anApp/protocol/socket"
 	"gvisor.dev/gvisor/pkg/tcpip"
 	"gvisor.dev/gvisor/pkg/tcpip/adapters/gonet"
 	"gvisor.dev/gvisor/pkg/tcpip/stack"
@@ -75,10 +74,6 @@ func (th *TcpHandler) TcpHandle(tcp *gonet.TCPConn, localAddress *net.TCPAddr, r
 
 	remoteAddr, err := net.ResolveTCPAddr("tcp", model.ContextConfigImp.ContextClient.TargetIp+":"+strconv.Itoa(localAddress.Port))
 
-	route := model.FindContainRoute(remoteAddr.IP, model.Routes)
-	// 创建连接
-	dialer := socket.GetDialer(route)
-
 	if err != nil {
 		log.Println("远程失败:", err)
 	}
@@ -90,9 +85,9 @@ func (th *TcpHandler) TcpHandle(tcp *gonet.TCPConn, localAddress *net.TCPAddr, r
 	//if true {
 	if true {
 		// 拨号连接
-		c, err := dialer.Dial(model.TCP, remoteAddr.String())
+		c, err := net.Dial(model.TCP, remoteAddr.String())
 		if err != nil {
-			log.Println(model.TCP, " direct ", route.Ip.String(), "==>", remoteAddr.String(), "连接失败:", err)
+			log.Println(model.TCP, " direct 0.0.0.0 ==>", remoteAddr.String(), "连接失败:", err)
 			return
 		}
 		conn := c.(*net.TCPConn)

@@ -11,8 +11,6 @@ import (
 )
 
 func CreateClient() {
-	// 更新路由任务
-	model.InitRoute()
 
 	dev, err := device.NewDevice(model.TunName)
 

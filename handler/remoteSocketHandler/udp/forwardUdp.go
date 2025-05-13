@@ -8,7 +8,6 @@ import (
 	"github.com/google/gopacket/layers"
 	"github.com/hellokeke123/anApp/model"
 	"github.com/hellokeke123/anApp/protocol/dns"
-	"github.com/hellokeke123/anApp/protocol/socket"
 	"gvisor.dev/gvisor/pkg/buffer"
 	"gvisor.dev/gvisor/pkg/tcpip"
 	"gvisor.dev/gvisor/pkg/tcpip/header"
@@ -203,18 +202,16 @@ func (udpStack *UdpStack) readRemoteDate(sendLocal func(destData []byte) error, 
 		}
 	}
 	remoteAddr, _ := net.ResolveUDPAddr(model.UDP, remoteAddressStr)
-	route := model.FindContainRoute(remoteAddr.IP, model.Routes)
-	dialer := socket.GetDialer(route)
 
 	if true {
 
-		log.Println(model.UDP, "direct", route.Ip.String(), "==>", remoteAddr.String())
-		identify := route.Ip.String() + port + "-" + remoteAddressStr
+		log.Println(model.UDP, "direct 0.0.0.0 ==>", remoteAddr.String())
+		identify := "0.0.0.0:" + port + "-" + remoteAddressStr
 		//portNumber, _ := strconv.Atoi(port)
 		go attachConnect(identify, data,
 			&connectionState{
 				dst:       remoteAddr,
-				dial:      dialer,
+				dial:      net.Dialer{},
 				sendLocal: sendLocal,
 			})
 		//if err != nil {
